@@ -1,6 +1,6 @@
 package hu.sztomek.buxassignment.presentation.di.module
 
-import android.content.Context
+import android.app.Application
 import dagger.Module
 import dagger.Provides
 import hu.sztomek.buxassignment.presentation.app.BUXAssignmentApplication
@@ -9,7 +9,7 @@ import hu.sztomek.buxassignment.presentation.app.BUXAssignmentApplication
 class AppModule {
 
     @Provides
-    fun provideAppContext(application: BUXAssignmentApplication): Context {
+    fun provideApplication(application: BUXAssignmentApplication): Application {
         return application
     }
 
