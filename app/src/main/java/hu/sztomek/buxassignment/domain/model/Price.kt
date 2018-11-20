@@ -1,4 +1,4 @@
 package hu.sztomek.buxassignment.domain.model
 
-class Price {
-}
+data class Price(val currency: String,
+                 val amount: String) : DomainModel
