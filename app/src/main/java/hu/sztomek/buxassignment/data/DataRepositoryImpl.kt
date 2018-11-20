@@ -9,35 +9,35 @@ import io.reactivex.Single
 class DataRepositoryImpl : DataRepository {
 
     override fun getSelectableProducts(): Single<List<ISelectableProduct>> {
-        return Single.just(
+        return Single.fromCallable {
             listOf(
                 SelectableProduct("Germany30", "sb26493"),
                 SelectableProduct("US500", "sb26496"),
                 SelectableProduct("EUR/USD", "sb26502"),
                 SelectableProduct("Gold", "sb26500"),
                 SelectableProduct("Apple", "sb26513"),
-                SelectableProduct("Deutsche Bank","sb28248")
+                SelectableProduct("Deutsche Bank", "sb28248")
             )
-        )
+        }
     }
 
-    override fun getDeviceStatus(): Flowable<DeviceStatus> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun getDeviceStatus(): Flowable<ConnectivityStatus> {
+        return Flowable.empty<ConnectivityStatus>()
     }
 
     override fun getProductDetails(selectableProduct: ISelectableProduct): Single<ProductDetails> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return Single.never()
     }
 
     override fun getSubscribedProducts(): Single<List<ISelectableProduct>> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return Single.never()
     }
 
     override fun updateSubscription(subscription: Subscription): Completable {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return Completable.never()
     }
 
     override fun latestPriceForProduct(product: ISelectableProduct): Flowable<PriceUpdate> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return Flowable.never()
     }
 }

@@ -2,6 +2,8 @@ apply plugin: 'com.android.application'
 
 apply plugin: 'kotlin-android'
 
+apply plugin: 'kotlin-kapt'
+
 apply plugin: 'kotlin-android-extensions'
 
 repositories {
@@ -24,17 +26,22 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    compileOptions {
+        sourceCompatibility 1.8
+        targetCompatibility 1.8
+    }
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation"org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
     // UI
     implementation "androidx.appcompat:appcompat:$androidx_version"
-    implementation "androidx.cardview:cardview:$androidx_version"
+    implementation "androidx.cardview:cardview:$cardview_version"
     implementation "androidx.constraintlayout:constraintlayout:$constraintlayout_version"
-    implementation "com.google.android.material:material:$androidx_version"
+    implementation "com.google.android.material:material:$material_version"
 
     // NETWORK
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
@@ -52,6 +59,8 @@ dependencies {
     implementation "com.google.dagger:dagger-android-support:$dagger_version"
     kapt "com.google.dagger:dagger-android-processor:$dagger_version"
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
+    // https://issuetracker.google.com/issues/115738511
+    kapt "com.android.tools.build.jetifier:jetifier-core:$jetifier_version"
 
     // LOGS
     implementation "com.jakewharton.timber:timber:$timber_version"
@@ -63,9 +72,9 @@ dependencies {
     // ARCHITECTURE COMPONENTS
     implementation "androidx.lifecycle:lifecycle-extensions:$lifecycle_version"
     kapt "androidx.lifecycle:lifecycle-compiler:$lifecycle_version"
-    
+
     // TESTS
     testImplementation "junit:junit:$junit_version"
-    androidTestImplementation "com.android.support.test:runner:$runner_version"
-    androidTestImplementation "com.android.support.test.espresso:espresso-core:$espresso_version"
+    androidTestImplementation "androidx.test:runner:$runner_version"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$espresso_version"
 }

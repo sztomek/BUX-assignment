@@ -8,7 +8,7 @@ import io.reactivex.Single
 interface DataRepository {
 
     fun getSelectableProducts(): Single<List<ISelectableProduct>>
-    fun getDeviceStatus(): Flowable<DeviceStatus>
+    fun getDeviceStatus(): Flowable<ConnectivityStatus>
     fun getProductDetails(selectableProduct: ISelectableProduct): Single<ProductDetails>
     fun getSubscribedProducts(): Single<List<ISelectableProduct>>
     fun updateSubscription(subscription: Subscription): Completable

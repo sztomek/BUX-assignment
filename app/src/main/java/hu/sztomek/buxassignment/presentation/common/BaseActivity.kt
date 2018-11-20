@@ -1,16 +1,15 @@
 package hu.sztomek.buxassignment.presentation.common
 
 import android.os.Bundle
-import androidx.fragment.app.FragmentActivity
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import dagger.android.AndroidInjection
 import hu.sztomek.buxassignment.presentation.model.PersistableModel
-import timber.log.Timber
 import javax.inject.Inject
 
-abstract class BaseActivity<out M : PersistableModel> : FragmentActivity() {
+abstract class BaseActivity<out M : PersistableModel> : AppCompatActivity() {
 
     private companion object {
         private const val KEY_STATE = "persistable_state"
@@ -33,7 +32,6 @@ abstract class BaseActivity<out M : PersistableModel> : FragmentActivity() {
         viewModel.stateStream.observe(
                 this@BaseActivity,
                 Observer {
-                    Timber.d("new state: [$it]")
                     render(it)
                 }
         )

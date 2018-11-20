@@ -2,6 +2,7 @@ package hu.sztomek.buxassignment.presentation.app
 
 import dagger.android.AndroidInjector
 import dagger.android.support.DaggerApplication
+import hu.sztomek.buxassignment.presentation.di.component.DaggerAppComponent
 import timber.log.Timber
 
 class BUXAssignmentApplication : DaggerApplication() {

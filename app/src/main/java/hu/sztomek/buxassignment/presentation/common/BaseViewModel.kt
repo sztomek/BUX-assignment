@@ -4,17 +4,17 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import hu.sztomek.buxassignment.domain.action.Action
 import hu.sztomek.buxassignment.domain.operation.Operation
+import hu.sztomek.buxassignment.domain.scheduler.WorkSchedulers
 import io.reactivex.FlowableTransformer
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.BiFunction
+import io.reactivex.processors.FlowableProcessor
 import io.reactivex.processors.PublishProcessor
-import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 
-abstract class BaseViewModel : ViewModel() {
+abstract class BaseViewModel(protected val workSchedulers: WorkSchedulers) : ViewModel() {
 
-    private val actionStream = PublishProcessor.create<Action>()
+    private val actionStream: FlowableProcessor<Action> = PublishProcessor.create<Action>()
     private val disposables = CompositeDisposable()
     private var subscribedToActions = false
 
@@ -26,30 +26,23 @@ abstract class BaseViewModel : ViewModel() {
         super.onCleared()
     }
 
-
-    fun takeInitialState(initialState: UiState) {
+    open fun takeInitialState(initialState: UiState) {
         if (subscribedToActions) {
             throw IllegalStateException("Already called takeInitialState!")
         }
 
-        stateStream.value = initialState
-
-        disposables.add(
-                actionStream
-                        .observeOn(Schedulers.computation())
-                        .compose(invokeActions())
-                        .scan(stateStream.value!!, getReducerFunction())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(
-                                {
-                                    stateStream.value = it
-                                },
-                                {
-                                    Timber.d(it)
-                                }
-                        )
-        )
-        subscribedToActions = true
+        actionStream
+            .observeOn(workSchedulers.io())
+            .compose(invokeActions())
+            .scan(stateStream.value ?: initialState, getReducerFunction())
+            .observeOn(workSchedulers.ui())
+            .subscribe(
+                { stateStream.value = it },
+                Timber::e
+            ).apply {
+                disposables.add(this)
+                subscribedToActions = true
+            }
     }
 
     fun sendAction(action: Action) {
@@ -57,5 +50,5 @@ abstract class BaseViewModel : ViewModel() {
     }
 
     protected abstract fun invokeActions(): FlowableTransformer<Action, Operation>
-    protected abstract fun getReducerFunction(): BiFunction<UiState, in Operation, UiState>
+    protected abstract fun getReducerFunction(): BiFunction<UiState, Operation, UiState>
 }

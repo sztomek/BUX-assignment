@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">BUXAssignment</string>
+    <string name="selectproduct_message">Please select one of the products below to proceed</string>
+    <string name="selectproduct_welcome">Welcome</string>
+    <string name="productselect_show_details">Show details</string>
+    <string name="loading_message">Please wait</string>
+    <string name="error_unknown_message">Ooops! Something went wrong…</string>
 </resources>

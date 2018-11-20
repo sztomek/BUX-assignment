@@ -13,7 +13,9 @@ import com.tinder.scarlet.websocket.okhttp.newWebSocketFactory
 import com.tinder.scarlet.websocket.okhttp.request.RequestFactory
 import dagger.Module
 import dagger.Provides
+import hu.sztomek.buxassignment.data.DataRepositoryImpl
 import hu.sztomek.buxassignment.data.api.RestApi
+import hu.sztomek.buxassignment.domain.data.DataRepository
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -25,7 +27,6 @@ import timber.log.Timber
 import javax.inject.Named
 import javax.inject.Singleton
 
-@Singleton
 @Module
 class DataModule {
 
@@ -41,6 +42,7 @@ class DataModule {
     @Named("authToken")
     fun provideAuthToken() = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyZWZyZXNoYWJsZSI6ZmFsc2UsInN1YiI6ImJiMGNkYTJiLWExMGUtNGVkMy1hZDVhLTBmODJiNGMxNTJjNCIsImF1ZCI6ImJldGEuZ2V0YnV4LmNvbSIsInNjcCI6WyJhcHA6bG9naW4iLCJydGY6bG9naW4iXSwiZXhwIjoxODIwODQ5Mjc5LCJpYXQiOjE1MDU0ODkyNzksImp0aSI6ImI3MzlmYjgwLTM1NzUtNGIwMS04NzUxLTMzZDFhNGRjOGY5MiIsImNpZCI6Ijg0NzM2MjI5MzkifQ.M5oANIi2nBtSfIfhyUMqJnex-JYg6Sm92KPYaUL9GKg"
 
+    @Singleton
     @Provides
     fun provideHttpLoggerInterceptor(): HttpLoggingInterceptor {
         val httpLoggingInterceptor = HttpLoggingInterceptor { message -> Timber.d(message) }
@@ -48,6 +50,7 @@ class DataModule {
         return httpLoggingInterceptor
     }
 
+    @Singleton
     @Provides
     @Named("headerInterceptor")
     fun provideHeaderInterceptor(@Named("authToken") authToken: String): Interceptor {
@@ -61,6 +64,7 @@ class DataModule {
         }
     }
 
+    @Singleton
     @Provides
     fun provideOkHttpClient(loggingInterceptor: HttpLoggingInterceptor,
                             @Named("headerInterceptor") headerInterceptor: Interceptor): OkHttpClient {
@@ -70,6 +74,7 @@ class DataModule {
             .build()
     }
 
+    @Singleton
     @Provides
     fun provideRetrofit(@Named("restUrl") url: String, okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
@@ -80,11 +85,13 @@ class DataModule {
             .build()
     }
 
+    @Singleton
     @Provides
     fun provideRestApi(retrofit: Retrofit): RestApi {
         return retrofit.create(RestApi::class.java)
     }
 
+    @Singleton
     @Provides
     fun provideWebSocketFactory(@Named("wsUrl") url: String,
                                 @Named("authToken") authToken: String,
@@ -98,16 +105,19 @@ class DataModule {
         })
     }
 
+    @Singleton
     @Provides
     fun provideBackoffStrategy(): BackoffStrategy {
         return ExponentialWithJitterBackoffStrategy(30 * 1_000L, 2 * 60 * 1_000L)
     }
 
+    @Singleton
     @Provides
     fun provideLifecycle(application: Application): Lifecycle {
         return AndroidLifecycle.ofApplicationForeground(application)
     }
 
+    @Singleton
     @Provides
     fun provideScarlet(webSocketFactory: WebSocket.Factory,
                        backoffStrategy: BackoffStrategy,
@@ -119,6 +129,12 @@ class DataModule {
             .backoffStrategy(backoffStrategy)
             .lifecycle(lifecycle)
             .build()
+    }
+
+    @Singleton
+    @Provides
+    fun provideRepository(): DataRepository {
+        return DataRepositoryImpl()
     }
 
 }
