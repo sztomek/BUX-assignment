@@ -9,7 +9,7 @@ interface DataRepository {
 
     fun getSelectableProducts(): Single<List<ISelectableProduct>>
     fun getDeviceStatus(): Flowable<ConnectivityStatus>
-    fun getProductDetails(selectableProduct: ISelectableProduct): Single<ProductDetails>
+    fun getProductDetails(productId: String): Single<ProductDetails>
     fun getSubscribedProducts(): Single<List<ISelectableProduct>>
     fun updateSubscription(subscription: Subscription): Completable
     fun latestPriceForProduct(product: ISelectableProduct): Flowable<PriceUpdate>

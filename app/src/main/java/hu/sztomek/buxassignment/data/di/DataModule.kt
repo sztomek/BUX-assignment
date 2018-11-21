@@ -15,13 +15,13 @@ import dagger.Module
 import dagger.Provides
 import hu.sztomek.buxassignment.data.DataRepositoryImpl
 import hu.sztomek.buxassignment.data.api.RestApi
+import hu.sztomek.buxassignment.data.error.ErrorHandlingCallAdapterFactory
 import hu.sztomek.buxassignment.domain.data.DataRepository
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import timber.log.Timber
 import javax.inject.Named
@@ -76,12 +76,14 @@ class DataModule {
 
     @Singleton
     @Provides
-    fun provideRetrofit(@Named("restUrl") url: String, okHttpClient: OkHttpClient): Retrofit {
+    fun provideRetrofit(@Named("restUrl") url: String,
+                        okHttpClient: OkHttpClient,
+                        callAdapterFactory: ErrorHandlingCallAdapterFactory): Retrofit {
         return Retrofit.Builder()
             .client(okHttpClient)
             .baseUrl(url)
             .addConverterFactory(GsonConverterFactory.create())
-            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+            .addCallAdapterFactory(callAdapterFactory)
             .build()
     }
 
@@ -133,8 +135,8 @@ class DataModule {
 
     @Singleton
     @Provides
-    fun provideRepository(): DataRepository {
-        return DataRepositoryImpl()
+    fun provideRepository(restApi: RestApi): DataRepository {
+        return DataRepositoryImpl(restApi)
     }
 
 }
