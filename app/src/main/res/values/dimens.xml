@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="distance_8dp">8dp</dimen>
+
+    <dimen name="font_size_small">18sp</dimen>
+    <dimen name="font_size_normal">22sp</dimen>
+    <dimen name="font_size_medium">32sp</dimen>
+    <dimen name="font_size_large">50sp</dimen>
+</resources>

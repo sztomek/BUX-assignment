@@ -6,7 +6,35 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <style name="PrimaryButton" parent="TextAppearance.AppCompat.Widget.Button">
         <item name="android:fontFamily">@font/nunito</item>
+        <item name="android:textColor">@color/buttonTextColor</item>
+        <item name="android:textSize">@dimen/font_size_normal</item>
+    </style>
+
+    <style name="PrimaryText" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/primaryText</item>
+        <item name="android:fontFamily">@font/nunito_extrabold</item>
+        <item name="android:textSize">@dimen/font_size_normal</item>
+    </style>
+
+    <style name="SecondaryText" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/secondaryText</item>
+        <item name="android:textSize">@dimen/font_size_small</item>
+    </style>
+
+    <style name="PrimaryText.Title">
+        <item name="autoSizeTextType">uniform</item>
+        <item name="autoSizeMaxTextSize">@dimen/font_size_large</item>
+        <item name="autoSizeMinTextSize">@dimen/font_size_medium</item>
+    </style>
+
+    <style name="PrimaryText.Content">
+        <item name="autoSizeTextType">uniform</item>
+        <item name="autoSizeMaxTextSize">@dimen/font_size_medium</item>
+        <item name="autoSizeMinTextSize">@dimen/font_size_normal</item>
     </style>
 
 </resources>
