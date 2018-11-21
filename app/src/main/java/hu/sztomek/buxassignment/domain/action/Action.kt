@@ -6,7 +6,7 @@ sealed class Action {
 
     object GetSelectableProducts : Action()
     object GetDeviceStatus : Action()
-    data class GetProductDetails(val product: ISelectableProduct) : Action()
+    data class GetProductDetails(val productId: String) : Action()
     object GetSubscriptions : Action()
     data class UpdateSubscriptions(val subscribeTo: List<ISelectableProduct>,
                                    val unsubscribeFrom: List<ISelectableProduct>) : Action()

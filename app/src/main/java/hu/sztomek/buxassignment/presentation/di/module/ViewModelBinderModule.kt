@@ -7,6 +7,7 @@ import dagger.Module
 import dagger.multibindings.IntoMap
 import hu.sztomek.buxassignment.presentation.di.BUXAssignmentViewModelFactory
 import hu.sztomek.buxassignment.presentation.di.ViewModelKey
+import hu.sztomek.buxassignment.presentation.screen.details.ProductDetailsViewModel
 import hu.sztomek.buxassignment.presentation.screen.productselect.ProductSelectViewModel
 
 @Module
@@ -19,5 +20,10 @@ interface ViewModelBinderModule {
     @IntoMap
     @ViewModelKey(ProductSelectViewModel::class)
     fun bindProductSelectViewModel(viewModel: ProductSelectViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(ProductDetailsViewModel::class)
+    fun bindProductDetailsViewModel(viewModel: ProductDetailsViewModel): ViewModel
 
 }

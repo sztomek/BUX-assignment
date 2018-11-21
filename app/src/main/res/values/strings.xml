@@ -1,8 +1,21 @@
 <resources>
-    <string name="app_name">BUXAssignment</string>
-    <string name="selectproduct_message">Please select one of the products below to proceed</string>
-    <string name="selectproduct_welcome">Welcome</string>
+    <!-- Product Select -->
+    <string name="productselect_message">Please select one of the products below to proceed</string>
+    <string name="productselect_welcome">Welcome</string>
     <string name="productselect_show_details">Show details</string>
+
+    <!-- Product Details -->
+    <string name="productdetails_symbol">symbol:</string>
+    <string name="productdetails_securityId">securityId:</string>
+    <string name="productdetails_displayName">displayName:</string>
+    <string name="productdetails_currentPrice">currentPrice:</string>
+    <string name="productdetails_closingPrice">closingPrice:</string>
+    <string name="productdetails_difference_percent">difference to closing:</string>
+
+    <!-- General -->
+    <string name="app_name">BUXAssignment</string>
     <string name="loading_message">Please wait</string>
     <string name="error_unknown_message">Ooops! Something went wrong…</string>
+    <string name="error_network_message">Failed to communicate with server!</string>
+    <string name="error_http_message_format">Server response contains error: $1%s</string>
 </resources>
