@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import hu.sztomek.buxassignment.R
 import hu.sztomek.buxassignment.domain.model.ISelectableProduct
 import hu.sztomek.buxassignment.presentation.common.adapter.BaseSpinnerAdapter
 import hu.sztomek.buxassignment.presentation.common.adapter.BaseViewHolder
@@ -29,12 +30,13 @@ class SelectProductSpinnerAdapter : BaseSpinnerAdapter<ISelectableProduct>() {
 
         companion object {
             fun create(parent: ViewGroup?): ViewHolder {
-                return ViewHolder(LayoutInflater.from(parent?.context).inflate(android.R.layout.simple_selectable_list_item, parent, false))
+                return ViewHolder(LayoutInflater.from(parent?.context).inflate(R.layout.item_product_spinner, parent, false))
             }
         }
 
         override fun bind(data: ISelectableProduct) {
-            view.findViewById<TextView>(android.R.id.text1).text = data.displayName
+            view.findViewById<TextView>(R.id.item_spinner_product_name).text = data.displayName
+            view.findViewById<TextView>(R.id.item_spinner_product_id).text = data.identifier
         }
     }
 
