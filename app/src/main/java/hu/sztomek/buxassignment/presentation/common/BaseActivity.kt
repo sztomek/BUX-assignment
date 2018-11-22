@@ -9,7 +9,7 @@ import dagger.android.AndroidInjection
 import hu.sztomek.buxassignment.presentation.model.PersistableModel
 import javax.inject.Inject
 
-abstract class BaseActivity<out M : PersistableModel, VM: BaseViewModel> : AppCompatActivity() {
+abstract class BaseActivity<out M : PersistableModel> : AppCompatActivity() {
 
     private companion object {
         private const val KEY_STATE = "persistable_state"
@@ -54,10 +54,7 @@ abstract class BaseActivity<out M : PersistableModel, VM: BaseViewModel> : AppCo
         }
     }
 
-    private inline fun <reified VM> getViewModelClass(): Class<VM> {
-        return VM::class.java
-    }
-
+    protected abstract fun getViewModelClass(): Class<out BaseViewModel>
     protected abstract fun initUi()
     protected abstract fun getDefaultInitialState(): M
     protected abstract fun render(it: UiState?)

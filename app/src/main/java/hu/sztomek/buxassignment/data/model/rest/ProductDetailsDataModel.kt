@@ -5,7 +5,7 @@ class ProductDetailsDataModel {
     var symbol: String? = null
     var displayName: String? = null
     var securityId: String? = null
-    var closingPriceDataModel: PriceDataModel? = null
-    var currentPriceDataModel: PriceDataModel? = null
+    var closingPrice: PriceDataModel? = null
+    var currentPrice: PriceDataModel? = null
 
 }

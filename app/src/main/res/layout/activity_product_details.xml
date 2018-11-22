@@ -10,48 +10,54 @@
               android:id="@+id/productdetails_symbol_label"
               app:layout_constraintTop_toTopOf="parent"
               app:layout_constraintStart_toStartOf="parent"
-              style="@style/PrimaryText"
-              android:paddingEnd="8dp"
+              style="@style/SecondaryText"
+              android:paddingEnd="@dimen/distance_8dp"
+              android:layout_marginTop="@dimen/distance_8dp"
               android:text="@string/productdetails_symbol"/>
 
     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
               android:id="@+id/productdetails_securityid_label"
               app:layout_constraintTop_toBottomOf="@+id/productdetails_symbol_label"
               app:layout_constraintStart_toStartOf="parent"
-              style="@style/PrimaryText"
-              android:paddingEnd="8dp"
+              style="@style/SecondaryText"
+              android:paddingEnd="@dimen/distance_8dp"
+              android:layout_marginTop="@dimen/distance_8dp"
               android:text="@string/productdetails_securityId"/>
 
     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
               android:id="@+id/productdetails_displayname_label"
               app:layout_constraintTop_toBottomOf="@+id/productdetails_securityid_label"
               app:layout_constraintStart_toStartOf="parent"
-              style="@style/PrimaryText"
-              android:paddingEnd="8dp"
+              style="@style/SecondaryText"
+              android:paddingEnd="@dimen/distance_8dp"
+              android:layout_marginTop="@dimen/distance_8dp"
               android:text="@string/productdetails_displayName"/>
 
     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
               android:id="@+id/productdetails_currentprice_label"
               app:layout_constraintTop_toBottomOf="@+id/productdetails_displayname_label"
               app:layout_constraintStart_toStartOf="parent"
-              style="@style/PrimaryText"
-              android:paddingEnd="8dp"
+              style="@style/SecondaryText"
+              android:paddingEnd="@dimen/distance_8dp"
+              android:layout_marginTop="@dimen/distance_8dp"
               android:text="@string/productdetails_currentPrice"/>
 
     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
               android:id="@+id/productdetails_closingprice_label"
               app:layout_constraintTop_toBottomOf="@+id/productdetails_currentprice_label"
               app:layout_constraintStart_toStartOf="parent"
-              style="@style/PrimaryText"
-              android:paddingEnd="8dp"
+              style="@style/SecondaryText"
+              android:paddingEnd="@dimen/distance_8dp"
+              android:layout_marginTop="@dimen/distance_8dp"
               android:text="@string/productdetails_closingPrice"/>
 
     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
               android:id="@+id/productdetails_difference_label"
               app:layout_constraintTop_toBottomOf="@+id/productdetails_closingprice_label"
               app:layout_constraintStart_toStartOf="parent"
-              style="@style/PrimaryText"
-              android:paddingEnd="8dp"
+              style="@style/SecondaryText"
+              android:paddingEnd="@dimen/distance_8dp"
+              android:layout_marginTop="@dimen/distance_8dp"
               android:text="@string/productdetails_difference_percent"/>
 
     <androidx.constraintlayout.widget.Barrier android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -60,42 +66,42 @@
                                               app:constraint_referenced_ids="productdetails_difference_label,productdetails_closingprice_label,productdetails_symbol_label,productdetails_securityid_label,productdetails_displayname_label,productdetails_currentprice_label"/>
 
     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-              style="@style/SecondaryText"
+              style="@style/PrimaryText"
               android:id="@+id/productdetails_symbol"
               tools:text="FRANCE40"
               app:layout_constraintBaseline_toBaselineOf="@+id/productdetails_symbol_label"
               app:layout_constraintStart_toEndOf="@+id/productdetails_label_barrier"/>
 
     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-              style="@style/SecondaryText"
+              style="@style/PrimaryText"
               android:id="@+id/productdetails_securityid"
               tools:text="26608"
               app:layout_constraintBaseline_toBaselineOf="@+id/productdetails_securityid_label"
               app:layout_constraintStart_toEndOf="@+id/productdetails_label_barrier"/>
 
     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-              style="@style/SecondaryText"
+              style="@style/PrimaryText"
               android:id="@+id/productdetails_displayname"
               tools:text="French Exchange"
               app:layout_constraintBaseline_toBaselineOf="@+id/productdetails_displayname_label"
               app:layout_constraintStart_toEndOf="@+id/productdetails_label_barrier"/>
 
     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-              style="@style/SecondaryText"
+              style="@style/PrimaryText"
               android:id="@+id/productdetails_currentprice"
               tools:text="43671.8 EUR"
               app:layout_constraintBaseline_toBaselineOf="@+id/productdetails_currentprice_label"
               app:layout_constraintStart_toEndOf="@+id/productdetails_label_barrier"/>
 
     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-              style="@style/SecondaryText"
+              style="@style/PrimaryText"
               android:id="@+id/productdetails_closingprice"
               tools:text="4216.4 EUR"
               app:layout_constraintBaseline_toBaselineOf="@+id/productdetails_closingprice_label"
               app:layout_constraintStart_toEndOf="@+id/productdetails_label_barrier"/>
 
     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-              style="@style/SecondaryText"
+              style="@style/PrimaryText"
               android:id="@+id/productdetails_difference"
               tools:text="3.68%"
               app:layout_constraintBaseline_toBaselineOf="@+id/productdetails_difference_label"

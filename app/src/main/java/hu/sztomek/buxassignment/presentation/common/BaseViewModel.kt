@@ -28,7 +28,7 @@ abstract class BaseViewModel(protected val workSchedulers: WorkSchedulers) : Vie
 
     open fun takeInitialState(initialState: UiState) {
         if (subscribedToActions) {
-            throw IllegalStateException("Already called takeInitialState!")
+            return
         }
 
         actionStream

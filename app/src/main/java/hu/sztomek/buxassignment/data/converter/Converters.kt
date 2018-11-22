@@ -7,13 +7,14 @@ import hu.sztomek.buxassignment.domain.model.ProductDetails
 
 fun PriceDataModel.toDomain() = Price(
     currency ?: "",
-    amount ?: ""
+    amount ?: "",
+    decimals ?: 0
 )
 
 fun ProductDetailsDataModel.toDomain() = ProductDetails(
     displayName ?: "",
     securityId ?: "",
     symbol ?: "",
-    closingPriceDataModel?.toDomain() ?: Price("", ""),
-    currentPriceDataModel?.toDomain() ?: Price("", "")
+    closingPrice?.toDomain() ?: Price("", ""),
+    currentPrice?.toDomain() ?: Price("", "")
 )

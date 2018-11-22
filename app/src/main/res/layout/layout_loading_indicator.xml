@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:app="http://schemas.android.com/apk/res-auto"
+             xmlns:tools="http://schemas.android.com/tools"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent">
+
+    <com.google.android.material.card.MaterialCardView android:layout_width="wrap_content"
+                                                       android:layout_height="wrap_content"
+                                                       android:elevation="@dimen/distance_8dp"
+                                                       android:layout_gravity="center">
+
+        <androidx.constraintlayout.widget.ConstraintLayout android:layout_width="wrap_content"
+                                                           android:layout_height="wrap_content"
+                                                           android:padding="@dimen/distance_8dp">
+
+            <ProgressBar
+                    android:id="@+id/loading_indicator_progress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:indeterminate="true"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toTopOf="@+id/loading_indicator_message"
+                    app:layout_constraintVertical_chainStyle="packed"/>
+
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                      android:id="@+id/loading_indicator_message"
+                      android:gravity="center"
+                      android:layout_marginTop="@dimen/distance_8dp"
+                      tools:text="Please wait"
+                      app:layout_constraintTop_toBottomOf="@+id/loading_indicator_progress"
+                      app:layout_constraintStart_toStartOf="parent"
+                      app:layout_constraintEnd_toEndOf="parent"
+                      app:layout_constraintBottom_toBottomOf="parent"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+</FrameLayout>

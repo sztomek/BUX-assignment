@@ -52,7 +52,7 @@ class DataRepositoryImpl(private val restApi: RestApi) : DataRepository {
                 }
             }
             RetrofitException.Kind.NETWORK -> {
-                DomainException.CheckNetworkException()
+                DomainException.CommunicationException()
             }
             RetrofitException.Kind.UNEXPECTED -> {
                 DomainException.GeneralDomainException()
