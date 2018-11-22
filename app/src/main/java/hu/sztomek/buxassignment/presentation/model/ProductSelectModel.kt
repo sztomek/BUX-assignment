@@ -1,29 +1,22 @@
 package hu.sztomek.buxassignment.presentation.model
 
 import android.os.Parcel
-import android.os.Parcelable
 import hu.sztomek.buxassignment.domain.model.ISelectableProduct
+import kotlinx.android.parcel.Parceler
+import kotlinx.android.parcel.Parcelize
 
+@Parcelize
 data class ProductSelectModel(val selectedProductId: String?,
                               val selectableProducts: List<ISelectableProduct> = emptyList()) : PersistableModel {
 
-    constructor(parcel: Parcel) : this(parcel.readString())
-
-    override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeString(selectedProductId)
-    }
-
-    override fun describeContents(): Int {
-        return 0
-    }
-
-    companion object CREATOR : Parcelable.Creator<ProductSelectModel> {
-        override fun createFromParcel(parcel: Parcel): ProductSelectModel {
-            return ProductSelectModel(parcel)
+    private companion object : Parceler<ProductSelectModel> {
+        override fun create(parcel: Parcel): ProductSelectModel {
+            return ProductSelectModel(parcel.readString())
         }
 
-        override fun newArray(size: Int): Array<ProductSelectModel?> {
-            return arrayOfNulls(size)
+        override fun ProductSelectModel.write(parcel: Parcel, flags: Int) {
+            parcel.writeString(selectedProductId)
         }
+
     }
 }
