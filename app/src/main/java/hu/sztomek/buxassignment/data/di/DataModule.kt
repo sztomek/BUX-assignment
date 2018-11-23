@@ -15,6 +15,7 @@ import dagger.Module
 import dagger.Provides
 import hu.sztomek.buxassignment.data.DataRepositoryImpl
 import hu.sztomek.buxassignment.data.api.RestApi
+import hu.sztomek.buxassignment.data.api.WebSocketApi
 import hu.sztomek.buxassignment.data.error.ErrorHandlingCallAdapterFactory
 import hu.sztomek.buxassignment.domain.data.DataRepository
 import okhttp3.Interceptor
@@ -135,8 +136,14 @@ class DataModule {
 
     @Singleton
     @Provides
-    fun provideRepository(restApi: RestApi): DataRepository {
-        return DataRepositoryImpl(restApi)
+    fun provideWsApi(scarlet: Scarlet): WebSocketApi {
+        return scarlet.create()
+    }
+
+    @Singleton
+    @Provides
+    fun provideRepository(restApi: RestApi, webSocketApi: WebSocketApi): DataRepository {
+        return DataRepositoryImpl(restApi, webSocketApi)
     }
 
 }

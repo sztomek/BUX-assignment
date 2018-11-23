@@ -11,6 +11,9 @@
     <string name="productdetails_currentPrice">currentPrice:</string>
     <string name="productdetails_closingPrice">closingPrice:</string>
     <string name="productdetails_difference_percent">difference to closing:</string>
+    <string name="productdetails_last_update">last update:</string>
+    <string name="productdetails_turn_on_live_updates">Enable live updates</string>
+    <string name="productdetails_turn_off_live_updates">Disable live updates</string>
 
     <!-- General -->
     <string name="app_name">BUXAssignment</string>

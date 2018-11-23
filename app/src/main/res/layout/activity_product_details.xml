@@ -60,10 +60,19 @@
               android:layout_marginTop="@dimen/distance_8dp"
               android:text="@string/productdetails_difference_percent"/>
 
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+              android:id="@+id/productdetails_last_update_label"
+              app:layout_constraintTop_toBottomOf="@+id/productdetails_difference_label"
+              app:layout_constraintStart_toStartOf="parent"
+              style="@style/SecondaryText"
+              android:paddingEnd="@dimen/distance_8dp"
+              android:layout_marginTop="@dimen/distance_8dp"
+              android:text="@string/productdetails_last_update"/>
+
     <androidx.constraintlayout.widget.Barrier android:layout_width="wrap_content" android:layout_height="wrap_content"
                                               android:id="@+id/productdetails_label_barrier"
                                               app:barrierDirection="end"
-                                              app:constraint_referenced_ids="productdetails_difference_label,productdetails_closingprice_label,productdetails_symbol_label,productdetails_securityid_label,productdetails_displayname_label,productdetails_currentprice_label"/>
+                                              app:constraint_referenced_ids="productdetails_difference_label,productdetails_closingprice_label,productdetails_symbol_label,productdetails_securityid_label,productdetails_displayname_label,productdetails_currentprice_label,productdetails_last_update_label"/>
 
     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
               style="@style/PrimaryText"
@@ -106,5 +115,21 @@
               tools:text="3.68%"
               app:layout_constraintBaseline_toBaselineOf="@+id/productdetails_difference_label"
               app:layout_constraintStart_toEndOf="@+id/productdetails_label_barrier"/>
+
+
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+              style="@style/PrimaryText"
+              android:id="@+id/productdetails_last_update"
+              tools:text="11/11/2011 11:11:11"
+              app:layout_constraintBaseline_toBaselineOf="@+id/productdetails_last_update_label"
+              app:layout_constraintStart_toEndOf="@+id/productdetails_label_barrier"/>
+
+    <Button android:layout_width="0dp" android:layout_height="wrap_content"
+            android:id="@+id/productdetails_live_updates_button"
+            android:layout_marginTop="@dimen/distance_8dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/productdetails_last_update_label"
+            tools:text="Show Real Updates"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

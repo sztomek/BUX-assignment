@@ -14,7 +14,9 @@ import hu.sztomek.buxassignment.presentation.common.dialog.ErrorDialogClickListe
 import hu.sztomek.buxassignment.presentation.common.dialog.ErrorDialogFragment
 import hu.sztomek.buxassignment.presentation.common.dialog.LoadingDialogFragment
 import hu.sztomek.buxassignment.presentation.converter.differenceInPercentTo
+import hu.sztomek.buxassignment.presentation.converter.toFormattedDate
 import hu.sztomek.buxassignment.presentation.converter.toFormattedString
+import hu.sztomek.buxassignment.presentation.converter.updatesButtonLabel
 import hu.sztomek.buxassignment.presentation.model.ProductDetailsModel
 import kotlinx.android.synthetic.main.activity_product_details.*
 import javax.inject.Inject
@@ -63,6 +65,16 @@ class ProductDetailsActivity : BaseActivity<ProductDetailsModel>() {
         setContentView(R.layout.activity_product_details)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
+        productdetails_live_updates_button.setOnClickListener {
+            (viewModel.stateStream.value?.data as? ProductDetailsModel)?.let {
+                if (it.liveUpdateEnabled) {
+                    viewModel.sendAction(Action.UpdateSubscriptions(emptyList(), listOf(it.model!!)))
+                } else {
+                    viewModel.sendAction(Action.UpdateSubscriptions(listOf(it.model!!), emptyList()))
+                }
+            }
+        }
+
         viewModel.sendAction(Action.GetProductDetails(productId))
     }
 
@@ -93,6 +105,8 @@ class ProductDetailsActivity : BaseActivity<ProductDetailsModel>() {
                         productdetails_currentprice.text = it.currentPrice.toFormattedString()
                         productdetails_closingprice.text = it.closingPrice.toFormattedString()
                         productdetails_difference.text = it.currentPrice.differenceInPercentTo(it.closingPrice)
+                        productdetails_last_update.text = data.toFormattedDate()
+                        productdetails_live_updates_button.text = resourceHelper.getString(data.updatesButtonLabel())
 
                         supportActionBar?.title = it.displayName
                     }
@@ -135,6 +149,5 @@ class ProductDetailsActivity : BaseActivity<ProductDetailsModel>() {
             dismiss()
         }
     }
-
 
 }

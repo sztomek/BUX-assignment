@@ -1,9 +1,12 @@
 package hu.sztomek.buxassignment.data
 
 import hu.sztomek.buxassignment.data.api.RestApi
+import hu.sztomek.buxassignment.data.api.WebSocketApi
+import hu.sztomek.buxassignment.data.converter.toData
 import hu.sztomek.buxassignment.data.converter.toDomain
 import hu.sztomek.buxassignment.data.error.RetrofitException
 import hu.sztomek.buxassignment.data.model.common.ErrorDataModel
+import hu.sztomek.buxassignment.data.model.ws.WebSocketSubscriptionMessage
 import hu.sztomek.buxassignment.domain.data.DataRepository
 import hu.sztomek.buxassignment.domain.error.DomainException
 import hu.sztomek.buxassignment.domain.model.*
@@ -11,7 +14,9 @@ import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
 
-class DataRepositoryImpl(private val restApi: RestApi) : DataRepository {
+class DataRepositoryImpl(private val restApi: RestApi,
+                         private val webSocketApi: WebSocketApi
+) : DataRepository {
 
     override fun getSelectableProducts(): Single<List<ISelectableProduct>> {
         return Single.fromCallable {
@@ -65,10 +70,26 @@ class DataRepositoryImpl(private val restApi: RestApi) : DataRepository {
     }
 
     override fun updateSubscription(subscription: Subscription): Completable {
-        return Completable.never()
+        return webSocketApi.onConnectedEvent()
+            .flatMapCompletable {
+                when(it.t) {
+                    "connect.connected" -> {
+                        Completable.fromAction { webSocketApi.updateSubscription(subscription.toData()) }
+                    }
+                    "connect.failed" -> {
+                        Completable.error(DomainException.WebSocketSubscriptionFailed(it.body?.developerMessage, it.body?.errorCode))
+                    }
+                    else -> {
+                        Completable.error(DomainException.WebSocketUnknownMessageError("oooo"))
+                    }
+                }
+
+            }
     }
 
     override fun latestPriceForProduct(product: ISelectableProduct): Flowable<PriceUpdate> {
-        return Flowable.never()
+        return webSocketApi.onTradingQuoteEvent()
+            .filter { "trading.quote" == it.t && product.identifier == it.body?.securityId }
+            .map { it.toDomain() }
     }
 }

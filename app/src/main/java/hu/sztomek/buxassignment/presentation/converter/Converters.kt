@@ -4,6 +4,8 @@ import android.graphics.Color
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
+import androidx.annotation.StringRes
+import hu.sztomek.buxassignment.R
 import hu.sztomek.buxassignment.domain.model.Price
 import hu.sztomek.buxassignment.domain.model.ProductDetails
 import hu.sztomek.buxassignment.domain.model.SelectableProducts
@@ -11,6 +13,7 @@ import hu.sztomek.buxassignment.presentation.model.ProductDetailsModel
 import hu.sztomek.buxassignment.presentation.model.ProductSelectModel
 import timber.log.Timber
 import java.text.NumberFormat
+import java.text.SimpleDateFormat
 import java.util.*
 
 fun SelectableProducts.toUiModel() = ProductSelectModel(null, products)
@@ -42,4 +45,17 @@ fun Price.differenceInPercentTo(other: Price): SpannableString {
     } catch (e: Exception) {
         SpannableString("N/A")
     }
+}
+
+fun ProductDetailsModel.toFormattedDate(): String {
+    if (lastUpdate == null) {
+        return "N/A"
+    }
+
+    return SimpleDateFormat.getTimeInstance().format(Date(lastUpdate))
+}
+
+@StringRes
+fun ProductDetailsModel.updatesButtonLabel(): Int {
+    return if (liveUpdateEnabled) R.string.productdetails_turn_off_live_updates else R.string.productdetails_turn_on_live_updates
 }

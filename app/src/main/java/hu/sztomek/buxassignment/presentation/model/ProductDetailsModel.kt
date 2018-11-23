@@ -7,7 +7,9 @@ import kotlinx.android.parcel.Parcelize
 
 @Parcelize
 data class ProductDetailsModel(val productId: String,
-                               val model: ProductDetails? = null) : PersistableModel {
+                               val model: ProductDetails? = null,
+                               val lastUpdate: Long? = null,
+                               val liveUpdateEnabled: Boolean = false) : PersistableModel {
     private companion object : Parceler<ProductDetailsModel> {
         override fun create(parcel: Parcel): ProductDetailsModel {
             return ProductDetailsModel(parcel.readString()!!)
