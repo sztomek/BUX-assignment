@@ -1,12 +1,14 @@
 package hu.sztomek.buxassignment.data
 
 import hu.sztomek.buxassignment.data.api.RestApi
-import hu.sztomek.buxassignment.data.api.WebSocketApi
+import hu.sztomek.buxassignment.data.api.WsApi
 import hu.sztomek.buxassignment.data.converter.toData
 import hu.sztomek.buxassignment.data.converter.toDomain
 import hu.sztomek.buxassignment.data.error.RetrofitException
 import hu.sztomek.buxassignment.data.model.common.ErrorDataModel
-import hu.sztomek.buxassignment.data.model.ws.WebSocketSubscriptionMessage
+import hu.sztomek.buxassignment.data.model.ws.TradingQuoteDataModel
+import hu.sztomek.buxassignment.data.model.ws.WebSocketConnectionEvents
+import hu.sztomek.buxassignment.data.model.ws.WebSocketMessage
 import hu.sztomek.buxassignment.domain.data.DataRepository
 import hu.sztomek.buxassignment.domain.error.DomainException
 import hu.sztomek.buxassignment.domain.model.*
@@ -14,8 +16,9 @@ import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
 
-class DataRepositoryImpl(private val restApi: RestApi,
-                         private val webSocketApi: WebSocketApi
+class DataRepositoryImpl(
+    private val restApi: RestApi,
+    private val wsApi: WsApi
 ) : DataRepository {
 
     override fun getSelectableProducts(): Single<List<ISelectableProduct>> {
@@ -29,10 +32,6 @@ class DataRepositoryImpl(private val restApi: RestApi,
                 SelectableProduct("Deutsche Bank", "sb28248")
             )
         }
-    }
-
-    override fun getDeviceStatus(): Flowable<ConnectivityStatus> {
-        return Flowable.empty<ConnectivityStatus>()
     }
 
     override fun getProductDetails(productId: String): Single<ProductDetails> {
@@ -51,7 +50,7 @@ class DataRepositoryImpl(private val restApi: RestApi,
         return when (retrofitException.kind) {
             RetrofitException.Kind.HTTP -> {
                 val parsedError = retrofitException.getErrorBodyAs(ErrorDataModel::class.java)
-                when(parsedError) {
+                when (parsedError) {
                     null -> DomainException.HttpException()
                     else -> DomainException.HttpException(parsedError.developerMessage, parsedError.errorCode)
                 }
@@ -65,31 +64,34 @@ class DataRepositoryImpl(private val restApi: RestApi,
         }
     }
 
-    override fun getSubscribedProducts(): Single<List<ISelectableProduct>> {
-        return Single.never()
+    override fun connectLiveUpdates(): Completable {
+        return wsApi.connectionEvents
+            .take(1)
+            .flatMapCompletable {
+                if (it == WebSocketConnectionEvents.CONNECTED) Completable.complete()
+                else wsApi.disconnect().andThen(wsApi.connect()) }
+    }
+
+    override fun disconnectLiveUpdates(): Completable {
+        return wsApi.disconnect()
     }
 
     override fun updateSubscription(subscription: Subscription): Completable {
-        return webSocketApi.onConnectedEvent()
+        return wsApi.connectionEvents
+            .take(1)
             .flatMapCompletable {
-                when(it.t) {
-                    "connect.connected" -> {
-                        Completable.fromAction { webSocketApi.updateSubscription(subscription.toData()) }
-                    }
-                    "connect.failed" -> {
-                        Completable.error(DomainException.WebSocketSubscriptionFailed(it.body?.developerMessage, it.body?.errorCode))
-                    }
-                    else -> {
-                        Completable.error(DomainException.WebSocketUnknownMessageError("oooo"))
-                    }
-                }
-
+                if (it == WebSocketConnectionEvents.CONNECTED) Completable.complete()
+                else wsApi.connect()
             }
+            .andThen(wsApi.updateSubscription(subscription.toData()))
     }
 
     override fun latestPriceForProduct(product: ISelectableProduct): Flowable<PriceUpdate> {
-        return webSocketApi.onTradingQuoteEvent()
-            .filter { "trading.quote" == it.t && product.identifier == it.body?.securityId }
+        return wsApi.messages
+            .filter { it.body is TradingQuoteDataModel }
+            .map { it as WebSocketMessage<TradingQuoteDataModel> }
             .map { it.toDomain() }
+            .filter { it.productIdentifier == product.identifier }
     }
+
 }

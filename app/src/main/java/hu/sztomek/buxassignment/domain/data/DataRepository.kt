@@ -1,6 +1,9 @@
 package hu.sztomek.buxassignment.domain.data
 
-import hu.sztomek.buxassignment.domain.model.*
+import hu.sztomek.buxassignment.domain.model.ISelectableProduct
+import hu.sztomek.buxassignment.domain.model.PriceUpdate
+import hu.sztomek.buxassignment.domain.model.ProductDetails
+import hu.sztomek.buxassignment.domain.model.Subscription
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
@@ -8,9 +11,9 @@ import io.reactivex.Single
 interface DataRepository {
 
     fun getSelectableProducts(): Single<List<ISelectableProduct>>
-    fun getDeviceStatus(): Flowable<ConnectivityStatus>
     fun getProductDetails(productId: String): Single<ProductDetails>
-    fun getSubscribedProducts(): Single<List<ISelectableProduct>>
+    fun connectLiveUpdates(): Completable
+    fun disconnectLiveUpdates(): Completable
     fun updateSubscription(subscription: Subscription): Completable
     fun latestPriceForProduct(product: ISelectableProduct): Flowable<PriceUpdate>
 

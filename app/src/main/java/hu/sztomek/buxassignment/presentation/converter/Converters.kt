@@ -6,9 +6,7 @@ import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
 import androidx.annotation.StringRes
 import hu.sztomek.buxassignment.R
-import hu.sztomek.buxassignment.domain.model.Price
-import hu.sztomek.buxassignment.domain.model.ProductDetails
-import hu.sztomek.buxassignment.domain.model.SelectableProducts
+import hu.sztomek.buxassignment.domain.model.*
 import hu.sztomek.buxassignment.presentation.model.ProductDetailsModel
 import hu.sztomek.buxassignment.presentation.model.ProductSelectModel
 import timber.log.Timber
@@ -18,7 +16,7 @@ import java.util.*
 
 fun SelectableProducts.toUiModel() = ProductSelectModel(null, products)
 
-fun ProductDetails.toUiModel() = ProductDetailsModel(identifier, this)
+fun ProductDetails.toUiModel() = ProductDetailsModel(identifier, this, System.currentTimeMillis())
 
 fun Price.toFormattedString(): String {
     return try {
@@ -45,6 +43,21 @@ fun Price.differenceInPercentTo(other: Price): SpannableString {
     } catch (e: Exception) {
         SpannableString("N/A")
     }
+}
+
+fun ProductDetailsModel.updatePrice(priceUpdate: PriceUpdate): ProductDetailsModel {
+    return copy(
+        lastUpdate = priceUpdate.timestamp,
+        model = model?.copy(
+            currentPrice = model.currentPrice.copy(amount = priceUpdate.currentPrice)
+        )
+    )
+}
+
+fun ProductDetailsModel.updateLiveStatus(subscription: Subscription): ProductDetailsModel {
+    return copy(
+        liveUpdateEnabled = subscription.subscribeTo.map { it.identifier }.contains(productId)
+    )
 }
 
 fun ProductDetailsModel.toFormattedDate(): String {

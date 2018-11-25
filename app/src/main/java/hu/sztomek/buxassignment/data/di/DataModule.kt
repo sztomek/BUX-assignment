@@ -1,27 +1,21 @@
 package hu.sztomek.buxassignment.data.di
 
-import android.app.Application
-import com.tinder.scarlet.Lifecycle
-import com.tinder.scarlet.Scarlet
-import com.tinder.scarlet.WebSocket
-import com.tinder.scarlet.lifecycle.android.AndroidLifecycle
-import com.tinder.scarlet.messageadapter.gson.GsonMessageAdapter
-import com.tinder.scarlet.retry.BackoffStrategy
-import com.tinder.scarlet.retry.ExponentialWithJitterBackoffStrategy
-import com.tinder.scarlet.streamadapter.rxjava2.RxJava2StreamAdapterFactory
-import com.tinder.scarlet.websocket.okhttp.newWebSocketFactory
-import com.tinder.scarlet.websocket.okhttp.request.RequestFactory
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
 import hu.sztomek.buxassignment.data.DataRepositoryImpl
 import hu.sztomek.buxassignment.data.api.RestApi
-import hu.sztomek.buxassignment.data.api.WebSocketApi
+import hu.sztomek.buxassignment.data.api.WsApi
+import hu.sztomek.buxassignment.data.api.WsApiImpl
 import hu.sztomek.buxassignment.data.error.ErrorHandlingCallAdapterFactory
+import hu.sztomek.buxassignment.data.json.WsMessageDeserializer
+import hu.sztomek.buxassignment.data.model.ws.WebSocketMessage
 import hu.sztomek.buxassignment.domain.data.DataRepository
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
-import okhttp3.Request
 import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Converter
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import timber.log.Timber
@@ -33,11 +27,11 @@ class DataModule {
 
     @Provides
     @Named("restUrl")
-    fun provideRestApiBaseUrl() = "https://api.beta.getbux.com"
+    fun provideRestApiBaseUrl() = "http://192.168.1.3:8080"
 
     @Provides
     @Named("wsUrl")
-    fun provideWebSocketApiUrl() = "https://rtf.beta.getbux.com/subscriptions/me"
+    fun provideWebSocketApiUrl() = "http://192.168.1.3:8080/subscriptions/me"
 
     @Provides
     @Named("authToken")
@@ -77,13 +71,28 @@ class DataModule {
 
     @Singleton
     @Provides
+    fun provideGson(wsMessageDeserializer: WsMessageDeserializer): Gson {
+        return GsonBuilder()
+            .registerTypeAdapter(WebSocketMessage::class.java, wsMessageDeserializer)
+            .create()
+    }
+
+    @Singleton
+    @Provides
+    fun provideConverterFactory(gson: Gson): Converter.Factory {
+        return GsonConverterFactory.create(gson)
+    }
+
+    @Singleton
+    @Provides
     fun provideRetrofit(@Named("restUrl") url: String,
                         okHttpClient: OkHttpClient,
+                        converterFactory: Converter.Factory,
                         callAdapterFactory: ErrorHandlingCallAdapterFactory): Retrofit {
         return Retrofit.Builder()
             .client(okHttpClient)
             .baseUrl(url)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(converterFactory)
             .addCallAdapterFactory(callAdapterFactory)
             .build()
     }
@@ -96,54 +105,14 @@ class DataModule {
 
     @Singleton
     @Provides
-    fun provideWebSocketFactory(@Named("wsUrl") url: String,
-                                @Named("authToken") authToken: String,
-                                okHttpClient: OkHttpClient): WebSocket.Factory {
-        return okHttpClient.newWebSocketFactory(object: RequestFactory {
-            override fun createRequest() =
-                Request.Builder().url(url)
-                    .addHeader("Accept-Language", "nl-NL,en;q=0.8")
-                    .addHeader("Authorization", authToken)
-                    .build()
-        })
+    fun provideWsApi(okHttpClient: OkHttpClient, gson: Gson): WsApi {
+        return WsApiImpl(okHttpClient, gson)
     }
 
     @Singleton
     @Provides
-    fun provideBackoffStrategy(): BackoffStrategy {
-        return ExponentialWithJitterBackoffStrategy(30 * 1_000L, 2 * 60 * 1_000L)
-    }
-
-    @Singleton
-    @Provides
-    fun provideLifecycle(application: Application): Lifecycle {
-        return AndroidLifecycle.ofApplicationForeground(application)
-    }
-
-    @Singleton
-    @Provides
-    fun provideScarlet(webSocketFactory: WebSocket.Factory,
-                       backoffStrategy: BackoffStrategy,
-                       lifecycle: Lifecycle): Scarlet {
-        return Scarlet.Builder()
-            .webSocketFactory(webSocketFactory)
-            .addMessageAdapterFactory(GsonMessageAdapter.Factory())
-            .addStreamAdapterFactory(RxJava2StreamAdapterFactory())
-            .backoffStrategy(backoffStrategy)
-            .lifecycle(lifecycle)
-            .build()
-    }
-
-    @Singleton
-    @Provides
-    fun provideWsApi(scarlet: Scarlet): WebSocketApi {
-        return scarlet.create()
-    }
-
-    @Singleton
-    @Provides
-    fun provideRepository(restApi: RestApi, webSocketApi: WebSocketApi): DataRepository {
-        return DataRepositoryImpl(restApi, webSocketApi)
+    fun provideRepository(restApi: RestApi, wsApi: WsApi): DataRepository {
+        return DataRepositoryImpl(restApi, wsApi)
     }
 
 }

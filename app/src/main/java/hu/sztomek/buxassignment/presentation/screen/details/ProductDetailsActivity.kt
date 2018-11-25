@@ -57,6 +57,23 @@ class ProductDetailsActivity : BaseActivity<ProductDetailsModel>() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+
+        viewModel.stateStream.value?.let {
+            val productDetailsModel = it.data as ProductDetailsModel
+            if (productDetailsModel.liveUpdateEnabled) {
+                viewModel.sendAction(Action.UpdateSubscriptions(listOf(productDetailsModel.model!!), emptyList()))
+            }
+        }
+    }
+
+    override fun onStop() {
+        viewModel.sendAction(Action.StopUpdates)
+
+        super.onStop()
+    }
+
     override fun getViewModelClass(): Class<out BaseViewModel> {
         return ProductDetailsViewModel::class.java
     }

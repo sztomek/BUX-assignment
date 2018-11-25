@@ -3,10 +3,13 @@ package hu.sztomek.buxassignment.presentation.screen.details
 import hu.sztomek.buxassignment.R
 import hu.sztomek.buxassignment.domain.action.Action
 import hu.sztomek.buxassignment.domain.error.DomainException
+import hu.sztomek.buxassignment.domain.interactor.DisconnectInteractor
 import hu.sztomek.buxassignment.domain.interactor.GetPriceUpdatesInteractor
 import hu.sztomek.buxassignment.domain.interactor.GetProductDetailsInteractor
+import hu.sztomek.buxassignment.domain.interactor.UpdateSubscriptionInteractor
 import hu.sztomek.buxassignment.domain.model.PriceUpdate
 import hu.sztomek.buxassignment.domain.model.ProductDetails
+import hu.sztomek.buxassignment.domain.model.Subscription
 import hu.sztomek.buxassignment.domain.operation.Operation
 import hu.sztomek.buxassignment.domain.resource.ResourceHelper
 import hu.sztomek.buxassignment.domain.scheduler.WorkSchedulers
@@ -14,6 +17,8 @@ import hu.sztomek.buxassignment.presentation.common.BaseViewModel
 import hu.sztomek.buxassignment.presentation.common.UiError
 import hu.sztomek.buxassignment.presentation.common.UiState
 import hu.sztomek.buxassignment.presentation.converter.toUiModel
+import hu.sztomek.buxassignment.presentation.converter.updateLiveStatus
+import hu.sztomek.buxassignment.presentation.converter.updatePrice
 import hu.sztomek.buxassignment.presentation.model.ProductDetailsModel
 import io.reactivex.Flowable
 import io.reactivex.FlowableTransformer
@@ -25,7 +30,9 @@ class ProductDetailsViewModel @Inject constructor(
     workSchedulers: WorkSchedulers,
     private val resourceHelper: ResourceHelper,
     private val productDetailsInteractor: GetProductDetailsInteractor,
-    private val getPriceUpdatesInteractor: GetPriceUpdatesInteractor
+    private val updateSubscriptionInteractor: UpdateSubscriptionInteractor,
+    private val getPriceUpdatesInteractor: GetPriceUpdatesInteractor,
+    private val disconnectInteractor: DisconnectInteractor
 ) : BaseViewModel(workSchedulers) {
 
     override fun invokeActions(): FlowableTransformer<Action, Operation> {
@@ -43,9 +50,33 @@ class ProductDetailsViewModel @Inject constructor(
                                 )
                             }
                     },
+                upstream.ofType(Action.UpdateSubscriptions::class.java)
+                    .flatMap { action ->
+                        updateSubscriptionInteractor.execute(action)
+                            .map { Operation.Completed(action, it) as Operation }
+                            .startWith(Operation.InProgress(action))
+                            .onErrorReturn {
+                                Operation.Failed(action,
+                                    if (it is DomainException) it
+                                    else DomainException.GeneralDomainException(it.message ?: resourceHelper.getString(R.string.error_unknown_message))
+                                )
+                            }
+                    },
                 upstream.ofType(Action.GetLatestPrice::class.java)
                     .flatMap { action ->
                         getPriceUpdatesInteractor.execute(action)
+                            .map { Operation.Completed(action, it) as Operation }
+                            .startWith(Operation.InProgress(action))
+                            .onErrorReturn {
+                                Operation.Failed(action,
+                                    if (it is DomainException) it
+                                    else DomainException.GeneralDomainException(it.message ?: resourceHelper.getString(R.string.error_unknown_message))
+                                )
+                            }
+                    },
+                upstream.ofType(Action.StopUpdates::class.java)
+                    .flatMap { action ->
+                        disconnectInteractor.execute(action)
                             .map { Operation.Completed(action, it) as Operation }
                             .startWith(Operation.InProgress(action))
                             .onErrorReturn {
@@ -71,12 +102,21 @@ class ProductDetailsViewModel @Inject constructor(
                     )
                 }
                 is Operation.Completed -> {
+                    val productDetailsModel = oldState.data as ProductDetailsModel
                     UiState.IdleState(when (operation.result) {
                         is ProductDetails -> {
                             operation.result.toUiModel()
                         }
+                        is Subscription -> {
+                            val updateLiveStatus = productDetailsModel.updateLiveStatus(operation.result)
+                            if (updateLiveStatus.liveUpdateEnabled) {
+                                   sendAction(Action.GetLatestPrice(productDetailsModel.model!!))
+                            }
+
+                            updateLiveStatus
+                        }
                         is PriceUpdate -> {
-                            (oldState.data as ProductDetailsModel).copy(lastUpdate = operation.result.timestamp, liveUpdateEnabled = true)
+                            productDetailsModel.updatePrice(operation.result)
                         }
                         else -> {
                             Timber.d("Unhandled Operation.result type: ${operation.result.javaClass}")

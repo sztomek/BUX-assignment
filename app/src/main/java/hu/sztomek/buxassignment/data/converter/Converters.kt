@@ -30,7 +30,7 @@ fun Subscription.toData() = WebSocketSubscriptionMessage(
 )
 
 fun WebSocketMessage<TradingQuoteDataModel>.toDomain() = PriceUpdate(
-    body?.securityId ?: "",
-    body?.currentPrice ?: "",
+    body.securityId ?: "",
+    body.currentPrice ?: "",
     System.currentTimeMillis()
 )
