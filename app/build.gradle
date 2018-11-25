@@ -52,11 +52,6 @@ dependencies {
     implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
     implementation "com.squareup.retrofit2:adapter-rxjava2:$retrofit_version"
     implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_version"
-    implementation "com.github.tinder.scarlet:scarlet:$scarlet_version"
-    implementation "com.github.tinder.scarlet:scarlet-websocket-okhttp:$scarlet_version"
-    implementation "com.github.tinder.scarlet:scarlet-message-adapter-gson:$scarlet_version"
-    implementation "com.github.tinder.scarlet:scarlet-stream-adapter-rxjava2:$scarlet_version"
-    implementation "com.github.tinder.scarlet:scarlet-lifecycle-android:$scarlet_version"
 
     // DEPENDENCY INJECTION
     implementation "com.google.dagger:dagger:$dagger_version"
