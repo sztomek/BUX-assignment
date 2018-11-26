@@ -21,6 +21,8 @@
     <string name="error_unknown_message">Ooops! Something went wrong…</string>
     <string name="error_network_message">Failed to communicate with server!</string>
     <string name="error_http_message_format">Server response contains error: $1%s</string>
+    <string name="error_ws_closed">WebSocket connection terminated unexpectedly: %s</string>
+    <string name="error_ws_unknown">Unexpected WebSocket error occurred!</string>
     <string name="alert_title">Error</string>
     <string name="retry">Retry</string>
     <string name="go_back">Go back</string>

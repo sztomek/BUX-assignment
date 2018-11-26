@@ -10,4 +10,5 @@ sealed class Action {
                                    val unsubscribeFrom: List<ISelectableProduct>) : Action()
     data class GetLatestPrice(val product: ISelectableProduct) : Action()
     object StopUpdates : Action()
+    object GetSocketErrors : Action()
 }

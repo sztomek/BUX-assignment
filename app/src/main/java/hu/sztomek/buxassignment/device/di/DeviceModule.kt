@@ -5,8 +5,6 @@ import android.content.res.Resources
 import dagger.Module
 import dagger.Provides
 import hu.sztomek.buxassignment.device.ResourceHelperImpl
-import hu.sztomek.buxassignment.device.api.ConnectivityApi
-import hu.sztomek.buxassignment.device.api.ConnectivityStatusApiImpl
 import hu.sztomek.buxassignment.device.scheduler.WorkSchedulersImpl
 import hu.sztomek.buxassignment.domain.resource.ResourceHelper
 import hu.sztomek.buxassignment.domain.scheduler.WorkSchedulers
@@ -25,12 +23,6 @@ class DeviceModule {
     @Provides
     fun provideResourceHelper(resources: Resources): ResourceHelper {
         return ResourceHelperImpl(resources)
-    }
-
-    @Singleton
-    @Provides
-    fun provideConnectivityApi(): ConnectivityApi {
-        return ConnectivityStatusApiImpl()
     }
 
     @Singleton

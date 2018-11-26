@@ -3,6 +3,7 @@ package hu.sztomek.buxassignment.presentation.screen.details
 import android.content.Context
 import android.content.Intent
 import hu.sztomek.buxassignment.R
+import hu.sztomek.buxassignment.R.id.*
 import hu.sztomek.buxassignment.domain.action.Action
 import hu.sztomek.buxassignment.domain.model.ISelectableProduct
 import hu.sztomek.buxassignment.domain.resource.ResourceHelper
@@ -60,12 +61,16 @@ class ProductDetailsActivity : BaseActivity<ProductDetailsModel>() {
     override fun onStart() {
         super.onStart()
 
+        viewModel.sendAction(Action.GetProductDetails(productId))
+
         viewModel.stateStream.value?.let {
             val productDetailsModel = it.data as ProductDetailsModel
             if (productDetailsModel.liveUpdateEnabled) {
                 viewModel.sendAction(Action.UpdateSubscriptions(listOf(productDetailsModel.model!!), emptyList()))
             }
         }
+
+        viewModel.sendAction(Action.GetSocketErrors)
     }
 
     override fun onStop() {
@@ -91,8 +96,6 @@ class ProductDetailsActivity : BaseActivity<ProductDetailsModel>() {
                 }
             }
         }
-
-        viewModel.sendAction(Action.GetProductDetails(productId))
     }
 
     override fun getDefaultInitialState(): ProductDetailsModel {
@@ -108,6 +111,11 @@ class ProductDetailsActivity : BaseActivity<ProductDetailsModel>() {
                 }
                 is UiState.ErrorState -> {
                     hideLoading()
+
+                    if (it.uiError is UiError.SocketClosedError) {
+                        productdetails_live_updates_button.text = resourceHelper.getString((it.data as ProductDetailsModel).updatesButtonLabel())
+                    }
+
                     showErrorDialog(it.uiError)
                 }
                 is UiState.IdleState -> {
@@ -147,6 +155,18 @@ class ProductDetailsActivity : BaseActivity<ProductDetailsModel>() {
     }
 
     private fun showErrorDialog(uiError: UiError) {
+        when (uiError) {
+            is UiError.HttpError, is UiError.RestCommunicationError -> {
+                showRestErrorDialog(uiError.message)
+            }
+            is UiError.SocketClosedError -> {
+                showSocketErrorDialog(uiError.message)
+            }
+        }
+
+    }
+
+    private fun showRestErrorDialog(message: String) {
         val buttons = mapOf(
             ErrorDialogFragment.ErrorDialogButtons.POSITIVE to resourceHelper.getString(R.string.retry),
             ErrorDialogFragment.ErrorDialogButtons.NEGATIVE to resourceHelper.getString(R.string.go_back)
@@ -155,10 +175,30 @@ class ProductDetailsActivity : BaseActivity<ProductDetailsModel>() {
         ErrorDialogFragment.create(
             ErrorDialogFragment.ErrorDialogModel(
                 resourceHelper.getString(R.string.alert_title),
-                uiError.message,
+                message,
                 buttons),
             restErrorClickListener)
-        .show(supportFragmentManager, TAG_DIALOG)
+            .show(supportFragmentManager, TAG_DIALOG)
+    }
+
+    private fun showSocketErrorDialog(message: String) {
+        val buttons = mapOf(
+            ErrorDialogFragment.ErrorDialogButtons.NEUTRAL to resourceHelper.getString(android.R.string.ok)
+        )
+
+        ErrorDialogFragment.create(
+            ErrorDialogFragment.ErrorDialogModel(
+                resourceHelper.getString(R.string.alert_title),
+                message,
+                buttons
+            ),
+            object: ErrorDialogClickListener {
+                override fun onButtonClicked(which: ErrorDialogFragment.ErrorDialogButtons) {
+                    // no-op
+                }
+
+            }
+        ).show(supportFragmentManager, TAG_DIALOG)
     }
 
     private fun hideErrorDialog() {

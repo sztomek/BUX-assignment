@@ -1,5 +1,6 @@
 package hu.sztomek.buxassignment.data.error
 
+import com.google.gson.JsonParseException
 import hu.sztomek.buxassignment.R
 import hu.sztomek.buxassignment.domain.scheduler.WorkSchedulers
 import io.reactivex.Single
@@ -20,13 +21,16 @@ class ErrorHandlingCallAdapterFactory @Inject constructor(workSchedulers: WorkSc
              return when (throwable) {
                  is HttpException -> {
                      val response = throwable.response()
-                     RetrofitException.httpError(response.raw().request().url().toString(), response, retrofit)
+                     RetrofitException.HttpException(response, retrofit)
                  }
                  is IOException -> {
-                     RetrofitException.networkError(throwable)
+                     RetrofitException.NetworkException(throwable)
+                 }
+                 is JsonParseException -> {
+                     RetrofitException.JsonParseException(throwable)
                  }
                  else -> {
-                     RetrofitException.unexpectedError(throwable)
+                     RetrofitException.UnknownException(throwable)
                  }
              }
          }

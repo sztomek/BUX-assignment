@@ -14,6 +14,7 @@ import hu.sztomek.buxassignment.data.model.ws.WebSocketMessage
 import hu.sztomek.buxassignment.domain.data.DataRepository
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import okhttp3.Request
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Converter
 import retrofit2.Retrofit
@@ -26,16 +27,27 @@ import javax.inject.Singleton
 class DataModule {
 
     @Provides
-    @Named("restUrl")
-    fun provideRestApiBaseUrl() = "http://192.168.1.3:8080"
+    @Named("baseUrl")
+    fun provideApiBaseUrl() = "http://192.168.1.9:8080"
 
     @Provides
     @Named("wsUrl")
-    fun provideWebSocketApiUrl() = "http://192.168.1.3:8080/subscriptions/me"
+    fun provideWebSocketApiUrl(@Named("baseUrl") baseUrl: String) = "$baseUrl/subscriptions/me"
 
     @Provides
     @Named("authToken")
     fun provideAuthToken() = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyZWZyZXNoYWJsZSI6ZmFsc2UsInN1YiI6ImJiMGNkYTJiLWExMGUtNGVkMy1hZDVhLTBmODJiNGMxNTJjNCIsImF1ZCI6ImJldGEuZ2V0YnV4LmNvbSIsInNjcCI6WyJhcHA6bG9naW4iLCJydGY6bG9naW4iXSwiZXhwIjoxODIwODQ5Mjc5LCJpYXQiOjE1MDU0ODkyNzksImp0aSI6ImI3MzlmYjgwLTM1NzUtNGIwMS04NzUxLTMzZDFhNGRjOGY5MiIsImNpZCI6Ijg0NzM2MjI5MzkifQ.M5oANIi2nBtSfIfhyUMqJnex-JYg6Sm92KPYaUL9GKg"
+
+    @Provides
+    fun provideWebSocketRequest(@Named("authToken") authToken: String, @Named("wsUrl") wsUrl: String): Request {
+        return Request.Builder()
+            .addHeader("Accept-Language", "nl-NL,en;q=0.8")
+            .addHeader(
+                "Authorization", authToken
+            )
+            .url(wsUrl)
+            .build()
+    }
 
     @Singleton
     @Provides
@@ -85,7 +97,7 @@ class DataModule {
 
     @Singleton
     @Provides
-    fun provideRetrofit(@Named("restUrl") url: String,
+    fun provideRetrofit(@Named("baseUrl") url: String,
                         okHttpClient: OkHttpClient,
                         converterFactory: Converter.Factory,
                         callAdapterFactory: ErrorHandlingCallAdapterFactory): Retrofit {
@@ -105,8 +117,8 @@ class DataModule {
 
     @Singleton
     @Provides
-    fun provideWsApi(okHttpClient: OkHttpClient, gson: Gson): WsApi {
-        return WsApiImpl(okHttpClient, gson)
+    fun provideWsApi(okHttpClient: OkHttpClient, request: Request, gson: Gson): WsApi {
+        return WsApiImpl(okHttpClient, request, gson)
     }
 
     @Singleton

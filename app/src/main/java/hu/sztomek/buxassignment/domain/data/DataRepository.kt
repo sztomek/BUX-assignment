@@ -1,5 +1,6 @@
 package hu.sztomek.buxassignment.domain.data
 
+import hu.sztomek.buxassignment.domain.error.DomainException
 import hu.sztomek.buxassignment.domain.model.ISelectableProduct
 import hu.sztomek.buxassignment.domain.model.PriceUpdate
 import hu.sztomek.buxassignment.domain.model.ProductDetails
@@ -16,5 +17,6 @@ interface DataRepository {
     fun disconnectLiveUpdates(): Completable
     fun updateSubscription(subscription: Subscription): Completable
     fun latestPriceForProduct(product: ISelectableProduct): Flowable<PriceUpdate>
+    fun socketErrors(): Flowable<DomainException.WebSocketDomainException>
 
 }

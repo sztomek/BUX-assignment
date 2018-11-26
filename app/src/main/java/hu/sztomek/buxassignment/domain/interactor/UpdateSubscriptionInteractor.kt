@@ -6,12 +6,14 @@ import hu.sztomek.buxassignment.domain.model.Subscription
 import io.reactivex.Flowable
 import javax.inject.Inject
 
-class UpdateSubscriptionInteractor @Inject constructor(private val dataRepository: DataRepository)
-    : Interactor<Action.UpdateSubscriptions, Subscription> {
+class UpdateSubscriptionInteractor @Inject constructor(private val dataRepository: DataRepository) :
+    Interactor<Action.UpdateSubscriptions, Subscription> {
 
     override fun execute(action: Action.UpdateSubscriptions): Flowable<Subscription> {
-        return dataRepository.updateSubscription(
-            Subscription(action.subscribeTo, action.unsubscribeFrom)
-        ).andThen(Flowable.just(Subscription(action.subscribeTo, action.unsubscribeFrom)))
+        return dataRepository.connectLiveUpdates()
+            .andThen(
+                dataRepository.updateSubscription(Subscription(action.subscribeTo, action.unsubscribeFrom))
+                    .andThen(Flowable.just(Subscription(action.subscribeTo, action.unsubscribeFrom)))
+        )
     }
 }

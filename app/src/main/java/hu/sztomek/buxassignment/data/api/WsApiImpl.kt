@@ -2,11 +2,11 @@ package hu.sztomek.buxassignment.data.api
 
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import hu.sztomek.buxassignment.data.error.WebSocketException
 import hu.sztomek.buxassignment.data.model.common.ErrorDataModel
 import hu.sztomek.buxassignment.data.model.ws.WebSocketConnectionEvents
 import hu.sztomek.buxassignment.data.model.ws.WebSocketMessage
 import hu.sztomek.buxassignment.data.model.ws.WebSocketSubscriptionMessage
-import hu.sztomek.buxassignment.domain.error.DomainException
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.processors.BehaviorProcessor
@@ -15,8 +15,17 @@ import io.reactivex.processors.PublishProcessor
 import okhttp3.*
 import okio.ByteString
 import timber.log.Timber
+import java.io.IOException
+import java.util.concurrent.TimeUnit
 
-class WsApiImpl(private val okHttpClient: OkHttpClient, private val gson: Gson) : WsApi {
+const val DEFAULT_WS_TIMEOUT_IN_SECONDS = 10L
+
+class WsApiImpl(
+    private val okHttpClient: OkHttpClient,
+    private val request: Request,
+    private val gson: Gson,
+    private val timeout: Long = DEFAULT_WS_TIMEOUT_IN_SECONDS
+) : WsApi {
 
     private val connectionEventProcessor: FlowableProcessor<WebSocketConnectionEvents> =
         BehaviorProcessor.createDefault(WebSocketConnectionEvents.DISCONNECTED)
@@ -25,30 +34,28 @@ class WsApiImpl(private val okHttpClient: OkHttpClient, private val gson: Gson) 
     private val messageProcessor: FlowableProcessor<WebSocketMessage<*>> = PublishProcessor.create()
     override val messages: Flowable<WebSocketMessage<*>>
         get() = messageProcessor
-    private val errorProcessor: FlowableProcessor<ErrorDataModel> = PublishProcessor.create()
-    override val errors: Flowable<ErrorDataModel>
+    private val errorProcessor: FlowableProcessor<WebSocketException> = PublishProcessor.create()
+    override val errors: Flowable<WebSocketException>
         get() = errorProcessor
     private var webSocket: WebSocket? = null
     private val webSocketListener: WebSocketListener by lazy {
-        object: WebSocketListener() {
+        object : WebSocketListener() {
             override fun onOpen(webSocket: WebSocket, response: Response) {
-                Timber.d("onOpen [$response]")
+                Timber.d("onOpen response: [$response]")
 
                 connectionEventProcessor.onNext(WebSocketConnectionEvents.CONNECTED)
             }
 
             override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
-                Timber.d("onFailure [$response], [$t]")
-                val toString = response?.body()?.toString()
-                val fromJson = gson.fromJson<WebSocketMessage.FailedToConnectMessage>(
-                    toString,
-                    genericType<WebSocketMessage.FailedToConnectMessage>()
-                )
+                Timber.d("onFailure response: [$response], throwable: [$t]")
 
-                errorProcessor.onNext(ErrorDataModel()) // TODO
+                errorProcessor.onNext(WebSocketException.ConnectionTerminatedException(t as? IOException))
+                internalDisconnect()
+                connectionEventProcessor.onNext(WebSocketConnectionEvents.DISCONNECTED)
             }
 
             override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
+                Timber.d("onClosing code: [$code], reason: [$reason]")
                 connectionEventProcessor.onNext(WebSocketConnectionEvents.DISCONNECTING)
             }
 
@@ -70,39 +77,69 @@ class WsApiImpl(private val okHttpClient: OkHttpClient, private val gson: Gson) 
             }
 
             override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
+                Timber.d("onClosed code: [$code], reason: [$reason]")
                 connectionEventProcessor.onNext(WebSocketConnectionEvents.DISCONNECTED)
             }
         }
     }
 
     override fun connect(): Completable {
-        return Completable.fromAction {
-            webSocket = okHttpClient.newWebSocket(Request.Builder()
-                .addHeader("Accept-Language", "nl-NL,en;q=0.8")
-                .addHeader(
-                    "Authorization",
-                    "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyZWZyZXNoYWJsZSI6ZmFsc2UsInN1YiI6ImJiMGNkYTJiLWExMGUtNGVkMy1hZDVhLTBmODJiNGMxNTJjNCIsImF1ZCI6ImJldGEuZ2V0YnV4LmNvbSIsInNjcCI6WyJhcHA6bG9naW4iLCJydGY6bG9naW4iXSwiZXhwIjoxODIwODQ5Mjc5LCJpYXQiOjE1MDU0ODkyNzksImp0aSI6ImI3MzlmYjgwLTM1NzUtNGIwMS04NzUxLTMzZDFhNGRjOGY5MiIsImNpZCI6Ijg0NzM2MjI5MzkifQ.M5oANIi2nBtSfIfhyUMqJnex-JYg6Sm92KPYaUL9GKg"
-                )
-                .url("http://192.168.1.3:8080/subscriptions/me")
-                .build(), webSocketListener)
-        }.andThen(connectionEventProcessor.skip(1)
-            .take(1)
+        return connectionEventProcessor.take(1)
             .flatMapCompletable {
-                if (it == WebSocketConnectionEvents.CONNECTED) Completable.complete()
-                else Completable.error(DomainException.WebSocketUnknownMessageError("alma"))
+                if (it == WebSocketConnectionEvents.CONNECTED) {
+                    Timber.d("Already connected")
+                    Completable.complete()
+                } else {
+                    Timber.d("Connection status: [$it], attempting to connect...")
+                    disconnect().andThen(Completable.fromAction {
+                        webSocket = okHttpClient.newWebSocket(request, webSocketListener)
+                    }).andThen(connectionEventProcessor.skip(1)
+                        .take(1)
+                        .flatMapCompletable {
+                            if (it != WebSocketConnectionEvents.CONNECTED)
+                                errorProcessor.take(1)
+                                    .flatMapCompletable {
+                                        Completable.error(
+                                            WebSocketException.ConnectionFailedException(null, it)
+                                        )
+                                    }
+                            else messageProcessor.filter { it is WebSocketMessage.ConnectedMessage || it is WebSocketMessage.FailedToConnectMessage }
+                                .take(1)
+                                .flatMapCompletable {
+                                    if (it is WebSocketMessage.ConnectedMessage) Completable.complete()
+                                    else Completable.error(
+                                        WebSocketException.ConnectionFailedException((it.body as ErrorDataModel).message, null)
+                                    )
+                                }
+                        }
+                    ).timeout(timeout, TimeUnit.SECONDS)
+                }
             }
-        )
     }
 
     override fun disconnect(): Completable {
         return Completable.fromAction {
-            webSocket?.cancel()
-            webSocket = null
+            internalDisconnect()
         }
     }
 
+    private fun internalDisconnect() {
+        webSocket?.cancel()
+        webSocket = null
+    }
+
     override fun updateSubscription(message: WebSocketSubscriptionMessage): Completable {
-        return Completable.fromAction { webSocket?.send(gson.toJson(message)) }
+        return connectionEventProcessor.take(1)
+            .flatMapCompletable {
+                if (it == WebSocketConnectionEvents.CONNECTED) Completable.fromAction {
+                    webSocket?.send(
+                        gson.toJson(
+                            message
+                        )
+                    )
+                }
+                else Completable.error(WebSocketException.SubscriptionUpdateFailedException)
+            }
     }
 
     private inline fun <reified T> genericType() = object : TypeToken<T>() {}.type
