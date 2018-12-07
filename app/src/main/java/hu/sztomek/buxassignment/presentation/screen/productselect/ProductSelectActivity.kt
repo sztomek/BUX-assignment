@@ -33,7 +33,7 @@ class ProductSelectActivity : BaseActivity<ProductSelectModel>() {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 Timber.d("onItemSelected: position [$position], id [$id]")
 
-                // TODO action to set selection and create new state
+                viewModel.sendAction(Action.SelectProduct(selectProductSpinnerAdapter.getItem(position)))
             }
         }
 
@@ -58,7 +58,12 @@ class ProductSelectActivity : BaseActivity<ProductSelectModel>() {
                         Timber.e("UiState.IdleState has invalid data: [$productSelectModel]")
                     } else {
                         selectProductSpinnerAdapter.setData(productSelectModel.selectableProducts)
-                        productselect_spinner.setSelection(0) // TODO get position
+                        val selectedItem = productSelectModel.selectableProducts
+                            .singleOrNull { it.identifier == productSelectModel.selectedProductId }
+
+                        if (selectedItem != null) {
+                            productselect_spinner.setSelection(selectProductSpinnerAdapter.getPositionOf(selectedItem))
+                        }
                     }
                 }
                 else -> {

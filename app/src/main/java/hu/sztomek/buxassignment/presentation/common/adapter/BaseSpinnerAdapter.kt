@@ -18,6 +18,10 @@ abstract class BaseSpinnerAdapter<T> : BaseAdapter() {
         return data.size
     }
 
+    fun getPositionOf(item: T): Int {
+        return data.indexOf(item)
+    }
+
     fun setData(data: List<T>) {
         this.data.clear()
         this.data.addAll(data)
