@@ -6,7 +6,9 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import dagger.android.AndroidInjection
+import hu.sztomek.buxassignment.presentation.di.module.NavigatorModule
 import hu.sztomek.buxassignment.presentation.model.PersistableModel
+import hu.sztomek.buxassignment.presentation.navigation.Navigator
 import javax.inject.Inject
 
 abstract class BaseActivity<out M : PersistableModel> : AppCompatActivity() {
@@ -17,6 +19,8 @@ abstract class BaseActivity<out M : PersistableModel> : AppCompatActivity() {
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
+    @Inject
+    lateinit var navigator: Navigator
 
     protected lateinit var viewModel: BaseViewModel
 
@@ -24,6 +28,7 @@ abstract class BaseActivity<out M : PersistableModel> : AppCompatActivity() {
         AndroidInjection.inject(this)
 
         super.onCreate(savedInstanceState)
+        navigator.takeActivity(this)
         viewModel = ViewModelProviders.of(
                 this,
                 viewModelFactory

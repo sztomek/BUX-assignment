@@ -2,17 +2,13 @@ package hu.sztomek.buxassignment.presentation.screen.productselect
 
 import android.view.View
 import android.widget.AdapterView
-import androidx.core.content.ContextCompat.startActivity
 import hu.sztomek.buxassignment.R
-import hu.sztomek.buxassignment.R.id.productselect_button
-import hu.sztomek.buxassignment.R.id.productselect_spinner
 import hu.sztomek.buxassignment.domain.action.Action
 import hu.sztomek.buxassignment.domain.model.ISelectableProduct
 import hu.sztomek.buxassignment.presentation.common.BaseActivity
 import hu.sztomek.buxassignment.presentation.common.BaseViewModel
 import hu.sztomek.buxassignment.presentation.common.UiState
 import hu.sztomek.buxassignment.presentation.model.ProductSelectModel
-import hu.sztomek.buxassignment.presentation.screen.details.ProductDetailsActivity
 import hu.sztomek.buxassignment.presentation.screen.productselect.adapter.SelectProductSpinnerAdapter
 import kotlinx.android.synthetic.main.activity_product_select.*
 import timber.log.Timber
@@ -42,7 +38,7 @@ class ProductSelectActivity : BaseActivity<ProductSelectModel>() {
         }
 
         productselect_button.setOnClickListener {
-            startActivity(ProductDetailsActivity.starter(this@ProductSelectActivity, productselect_spinner.selectedItem as ISelectableProduct))
+            navigator.showDetails(productselect_spinner.selectedItem as ISelectableProduct)
         }
 
         viewModel.sendAction(Action.GetSelectableProducts)
