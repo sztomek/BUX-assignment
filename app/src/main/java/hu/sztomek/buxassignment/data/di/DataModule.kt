@@ -27,12 +27,12 @@ import javax.inject.Singleton
 class DataModule {
 
     @Provides
-    @Named("baseUrl")
-    fun provideApiBaseUrl() = "http://192.168.1.9:8080"
+    @Named("restUrl")
+    fun provideApiBaseUrl() = "https://api.beta.getbux.com"
 
     @Provides
     @Named("wsUrl")
-    fun provideWebSocketApiUrl(@Named("baseUrl") baseUrl: String) = "$baseUrl/subscriptions/me"
+    fun provideWebSocketApiUrl() = "https://rtf.beta.getbux.com/subscriptions/me"
 
     @Provides
     @Named("authToken")
@@ -97,7 +97,7 @@ class DataModule {
 
     @Singleton
     @Provides
-    fun provideRetrofit(@Named("baseUrl") url: String,
+    fun provideRetrofit(@Named("restUrl") url: String,
                         okHttpClient: OkHttpClient,
                         converterFactory: Converter.Factory,
                         callAdapterFactory: ErrorHandlingCallAdapterFactory): Retrofit {
