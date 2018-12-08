@@ -6,9 +6,10 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:fontFamily">@font/nunito</item>
     </style>
 
-    <style name="PrimaryButton" parent="TextAppearance.AppCompat.Widget.Button">
+    <style name="PrimaryButton" parent="Base.Widget.AppCompat.Button.Borderless">
         <item name="android:fontFamily">@font/nunito</item>
         <item name="android:textColor">@color/buttonTextColor</item>
         <item name="android:textSize">@dimen/font_size_normal</item>
@@ -25,16 +26,12 @@
         <item name="android:textSize">@dimen/font_size_small</item>
     </style>
 
-    <style name="PrimaryText.Title">
-        <item name="autoSizeTextType">uniform</item>
-        <item name="autoSizeMaxTextSize">@dimen/font_size_large</item>
-        <item name="autoSizeMinTextSize">@dimen/font_size_medium</item>
+    <style name="Title" parent="PrimaryText">
+        <item name="android:textSize">@dimen/font_size_medium</item>
     </style>
 
-    <style name="PrimaryText.Content">
-        <item name="autoSizeTextType">uniform</item>
-        <item name="autoSizeMaxTextSize">@dimen/font_size_medium</item>
-        <item name="autoSizeMinTextSize">@dimen/font_size_normal</item>
+    <style name="Content" parent="PrimaryText">
+        <item name="android:textSize">@dimen/font_size_normal</item>
     </style>
 
     <style name="LoadingDialog" parent="Theme.MaterialComponents.Light.Dialog">

@@ -129,6 +129,7 @@
             android:layout_marginTop="@dimen/distance_8dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            style="@style/PrimaryButton"
             app:layout_constraintTop_toBottomOf="@id/productdetails_last_update_label"
             tools:text="Show Real Updates"/>
 
