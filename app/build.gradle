@@ -22,8 +22,13 @@ android {
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
+
+    testOptions {
+        execution 'ANDROIDX_TEST_ORCHESTRATOR'
+    }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -74,6 +79,11 @@ dependencies {
 
     // TESTS
     testImplementation "junit:junit:$junit_version"
+    testImplementation "org.mockito:mockito-core:$mockito_version"
+    testImplementation "androidx.arch.core:core-testing:$androidx_testing_version"
     androidTestImplementation "androidx.test:runner:$runner_version"
     androidTestImplementation "androidx.test.espresso:espresso-core:$espresso_version"
+    androidTestImplementation "androidx.test:rules:$androidx_rules_version"
+    androidTestUtil "androidx.test:orchestrator:$runner_version"
+    kaptAndroidTest "com.google.dagger:dagger-compiler:$dagger_version"
 }

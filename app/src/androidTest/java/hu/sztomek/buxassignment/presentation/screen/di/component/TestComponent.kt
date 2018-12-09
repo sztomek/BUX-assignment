@@ -1,16 +1,17 @@
-package hu.sztomek.buxassignment.presentation.di.component
+package hu.sztomek.buxassignment.presentation.screen.di.component
 
 import dagger.BindsInstance
 import dagger.Component
-import dagger.android.AndroidInjector
 import dagger.android.support.AndroidSupportInjectionModule
 import hu.sztomek.buxassignment.data.di.DataModule
 import hu.sztomek.buxassignment.device.di.DeviceModule
 import hu.sztomek.buxassignment.presentation.app.BUXAssignmentApplication
+import hu.sztomek.buxassignment.presentation.di.component.AppComponent
 import hu.sztomek.buxassignment.presentation.di.module.ActivityBinderModule
 import hu.sztomek.buxassignment.presentation.di.module.AppModule
 import hu.sztomek.buxassignment.presentation.di.module.NavigatorModule
 import hu.sztomek.buxassignment.presentation.di.module.ViewModelBinderModule
+import hu.sztomek.buxassignment.presentation.screen.productselect.SelectProductActivityTest
 import javax.inject.Singleton
 
 @Singleton
@@ -25,13 +26,16 @@ import javax.inject.Singleton
         NavigatorModule::class
     )
 )
-interface AppComponent : AndroidInjector<BUXAssignmentApplication> {
+interface TestComponent : AppComponent {
 
     @Component.Builder
     interface Builder {
         @BindsInstance
         fun application(app: BUXAssignmentApplication): Builder
 
-        fun build(): AppComponent
+        fun build(): TestComponent
     }
+
+    fun inject(test: SelectProductActivityTest)
+
 }
